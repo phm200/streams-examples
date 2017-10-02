@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html>
+<body>
+    <div id="myApp">
+        <h1>Amazon Connect Streams API Samples<h1>
+        <h2>Embedding CCP</h2>
+    </div>
+    <div id="containerDiv" style="width: 320px; min-width: 200px; height: 465px; min-height: 400px; ">
+        <!--Amazon CCP will go here-->
+    </div>
+</body>
+</html>
+<script src="amazon-connect-v1.2.0.js"></script>
+<script type="text/javascript">
+    //replace with the CCP URL for your Amazon Connect instance
+    var ccpUrl = "your_CCP_Url"; 
+
+    connect.core.initCCP(containerDiv, {
+        ccpUrl: ccpUrl,        
+        loginPopup: true,         
+        softphone: {
+            allowFramedSoftphone: true
+        }
+    });
+</script>
