@@ -1,5 +1,5 @@
 # streams-examples
-Examples of using the Amazon Connect Streams API for browser-based contact center integration
+Examples of using the Amazon Connect Streams API (https://github.com/aws/amazon-connect-streams) for browser-based contact center integration
 
 ## Companion blog posts
 See the Perficient Integrate blog at http://blogs.perficient.com/integrate/ for details on each sample
