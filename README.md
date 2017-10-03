@@ -13,4 +13,4 @@ See the Perficient Integrate blog at http://blogs.perficient.com/integrate/ for 
 After cloning the repository from GitHub, you can jump to a sample by checking out its tag:
 - Sample 1: git checkout sample-1-embedding-ccp
 - Sample 2: git checkout sample-2-subscribing-to-events
-- Sample 2: git checkout sample-3-custom-ux
+- Sample 3: git checkout sample-3-custom-ux
