@@ -1,19 +1,35 @@
 ﻿<!DOCTYPE html>
 <html>
 <body>
-    <div id="myApp">
-        <h1>Amazon Connect Streams API Samples<h1>
-        <h2>Embedding CCP</h2>
+    <div id="topDiv" style="width: 700px; min-width: 700px; margin-left: 200px;">
+        <div id="myApp">
+            <h1>Amazon Connect Streams API Samples<h1>
+            <h2>Subscribing to Streams Events</h2>
+        </div>
     </div>
-    <div id="containerDiv" style="width: 320px; min-width: 200px; height: 465px; min-height: 400px; ">
-        <!--Amazon CCP will go here-->
+    <div id="gridDiv" style="display: grid; grid-template-columns: 350px 400px 400px">
+        <div id="containerDiv" style="width: 320px; min-width: 200px; height: 465px; min-height: 400px; ">
+            <!--Amazon CCP will go here-->
+        </div>
+        <div id="logMsgsContainer">
+            <h2>Log Messages</h2>
+            <div id="logMsgs" style="height: 465px; overflow: auto;">
+                <!-- log messages will go here -->
+            </div>
+        </div>
+        <div id="eventMsgsContainer">
+            <h2>Event Messages</h2>
+            <div id="eventMsgs" style="height: 465px; overflow: auto;">
+                <!-- events from Streams API will go here-->
+            </div>
+        </div>
     </div>
 </body>
 </html>
 <script src="amazon-connect-v1.2.0.js"></script>
 <script type="text/javascript">
     //replace with the CCP URL for your Amazon Connect instance
-    var ccpUrl = "your_CCP_Url"; 
+    var ccpUrl = "your_ccp_url";
 
     connect.core.initCCP(containerDiv, {
         ccpUrl: ccpUrl,        
@@ -22,4 +38,98 @@
             allowFramedSoftphone: true
         }
     });
+
+    connect.contact(subscribeToContactEvents);
+    connect.agent(subscribeToAgentEvents);
+
+    function subscribeToContactEvents(contact) {
+        logInfoMsg("Subscribing to events for contact");
+        if (contact.getActiveInitialConnection()
+            && contact.getActiveInitialConnection().getEndpoint()) {
+            logInfoMsg("New contact is from " + contact.getActiveInitialConnection().getEndpoint().phoneNumber);
+        } else {
+            logInfoMsg("This is an existing contact for this agent");
+        }
+        logInfoMsg("Contact is from queue " + contact.getQueue().name);
+        logInfoMsg("Contact attributes are " + JSON.stringify(contact.getAttributes()));
+        contact.onIncoming(handleContactIncoming);
+        contact.onAccepted(handleContactAccepted);
+        contact.onConnected(handleContactConnected);
+        contact.onEnded(handleContactEnded);
+    }
+
+    function handleContactIncoming(contact) {
+        if (contact) {
+            logInfoEvent("[contact.onIncoming] Contact is incoming. Contact state is " + contact.getStatus().type);
+        } else {
+            logInfoEvent("[contact.onIncoming] Contact is incoming. Null contact passed to event handler");
+        }
+    }
+
+    function handleContactAccepted(contact) {
+        if (contact) {
+            logInfoEvent("[contact.onAccepted] Contact accepted by agent. Contact state is " + contact.getStatus().type);
+        } else {
+            logInfoEvent("[contact.onAccepted] Contact accepted by agent. Null contact passed to event handler");
+        }
+    }
+
+    function handleContactConnected(contact) {
+        if (contact) {
+            logInfoEvent("[contact.onConnected] Contact connected to agent. Contact state is " + contact.getStatus().type);
+        } else {
+            logInfoEvent("[contact.onConnected] Contact connected to agent. Null contact passed to event handler");
+        }
+    }
+
+    function handleContactEnded(contact) {
+        if (contact) {
+            logInfoEvent("[contact.onEnded] Contact has ended. Contact state is " + contact.getStatus().type);
+        } else {
+            logInfoEvent("[contact.onEnded] Contact has ended. Null contact passed to event handler");
+        }
+    }
+
+    function subscribeToAgentEvents(agent) {
+        logInfoMsg("Subscribing to events for agent " + agent.getName());
+        logInfoMsg("Agent is currently in status of " + agent.getStatus().name);
+        agent.onRefresh(handleAgentRefresh);
+        agent.onRoutable(handleAgentRoutable);
+        agent.onNotRoutable(handleAgentNotRoutable);
+        agent.onOffline(handleAgentOffline);
+    }
+
+    function handleAgentRefresh(agent) {
+        logInfoEvent("[agent.onRefresh] Agent data refreshed. Agent status is " + agent.getStatus().name);
+    }
+
+    function handleAgentRoutable(agent) {
+        logInfoEvent("[agent.onRoutable] Agent is routable. Agent status is " + agent.getStatus().name);
+    }
+
+    function handleAgentNotRoutable(agent) {
+        logInfoEvent("[agent.onNotRoutable] Agent is online, but not routable. Agent status is " + agent.getStatus().name);
+    }
+
+    function handleAgentOffline(agent) {
+        logInfoEvent("[agent.onOffline] Agent is offline. Agent status is " + agent.getStatus().name);
+    }
+
+    function logMsgToScreen(msg) {
+        logMsgs.innerHTML = '<div>' + new Date().toLocaleTimeString() + ' ' + msg + '</div>' + logMsgs.innerHTML;
+    }
+
+    function logEventToScreen(msg) {
+        eventMsgs.innerHTML = '<div>' + new Date().toLocaleTimeString() + ' ' + msg + '</div>' + eventMsgs.innerHTML;
+    }
+
+    function logInfoMsg(msg) {
+        connect.getLog().info(msg);
+        logMsgToScreen(msg);
+    }
+
+    function logInfoEvent(eventMsg) {
+        connect.getLog().info(eventMsg);
+        logEventToScreen(eventMsg);
+    }
 </script>
